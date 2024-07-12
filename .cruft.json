@@ -1,0 +1,24 @@
+{
+  "template": "https://github.com/s-weigand/cookiecutter-pypackage",
+  "commit": "1af45b1eb15650b8a37c7a587bef8ff9845c8a86",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "Anmol Bhatia",
+      "email": "a.bhatia2@student.vu.nl",
+      "github_username": "glotaran",
+      "project_name": "PyParamGUI",
+      "project_slug": "pyparamgui",
+      "project_slug_url": "pyparamgui",
+      "project_short_description": "pyglotaran notebook widgets for teaching parameter estimation examples",
+      "version": "0.0.1",
+      "command_line_interface": "No command-line interface",
+      "open_source_license": "Apache Software License",
+      "git_host_url": "https://github.com",
+      "install_pre_commit": "yes",
+      "_copy_without_render": ["docs/_templates/autosummary"],
+      "_template": "https://github.com/s-weigand/cookiecutter-pypackage"
+    }
+  },
+  "directory": null
+}
