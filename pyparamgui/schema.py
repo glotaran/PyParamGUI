@@ -4,8 +4,6 @@ settings for simulation.
 
 from __future__ import annotations
 
-from typing import Dict
-
 import numpy as np
 from pydantic import BaseModel
 from pydantic import ConfigDict
@@ -69,7 +67,7 @@ class SpectralCoordinates(BaseModel):
 
 def generate_simulation_coordinates(
     time_coordinates: TimeCoordinates, spectral_coordinates: SpectralCoordinates
-) -> Dict[str, np.ndarray]:
+) -> dict[str, np.ndarray]:
     """Generate simulation coordinates based on time and spectral coordinates.
 
     Args:
@@ -137,7 +135,7 @@ class SimulationConfig(BaseModel):
 
     kinetic_parameters: KineticParameters
     spectral_parameters: SpectralParameters
-    coordinates: Dict[str, np.ndarray]
+    coordinates: dict[str, np.ndarray]
     settings: Settings
     irf: IRF
 

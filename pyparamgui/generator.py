@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
+from typing import TYPE_CHECKING
 from typing import Any
 from typing import TypedDict
 from typing import cast
@@ -12,6 +12,9 @@ from glotaran.builtin.megacomplexes.decay import DecayParallelMegacomplex
 from glotaran.builtin.megacomplexes.decay import DecaySequentialMegacomplex
 from glotaran.builtin.megacomplexes.spectral import SpectralMegacomplex
 from glotaran.model import Model
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def _generate_decay_model(
@@ -221,9 +224,12 @@ def generate_model(*, generator_name: str, generator_arguments: GeneratorArgumen
         Raised when an unknown generator is specified.
     """
     if generator_name not in generators:
-        raise ValueError(
+        msg = (
             f"Unknown model generator '{generator_name}'. "
             f"Known generators are: {list(generators.keys())}"
+        )
+        raise ValueError(
+            msg
         )
     model = generators[generator_name](**generator_arguments)
     return Model.create_class_from_megacomplexes(
@@ -259,9 +265,12 @@ def generate_model_yml(*, generator_name: str, generator_arguments: GeneratorArg
         Raised when an unknown generator is specified.
     """
     if generator_name not in generators:
-        raise ValueError(
+        msg = (
             f"Unknown model generator '{generator_name}'. "
             f"Known generators are: {list(generators.keys())}"
+        )
+        raise ValueError(
+            msg
         )
     model = generators[generator_name](**generator_arguments)
     return cast(str, write_dict(model))

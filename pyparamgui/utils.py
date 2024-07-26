@@ -5,22 +5,24 @@ etc.
 from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING
 from typing import Any
-from typing import Dict
-from typing import Union
 
-import numpy as np
 import yaml
 from glotaran.builtin.io.yml.yml import save_model
-from glotaran.model.model import Model
-from glotaran.parameter.parameters import Parameters
 from glotaran.plugin_system.data_io_registration import save_dataset
 from glotaran.plugin_system.project_io_registration import save_parameters
 from glotaran.simulation.simulation import simulate
 
 from pyparamgui.generator import generate_model
-from pyparamgui.schema import Settings
-from pyparamgui.schema import SimulationConfig
+
+if TYPE_CHECKING:
+    import numpy as np
+    from glotaran.model.model import Model
+    from glotaran.parameter.parameters import Parameters
+
+    from pyparamgui.schema import Settings
+    from pyparamgui.schema import SimulationConfig
 
 
 def _generate_model_file(
@@ -127,7 +129,7 @@ def _generate_parameter_file(
 def _generate_data_file(
     model: Model,
     parameters: Parameters,
-    coordinates: Dict[str, np.ndarray],
+    coordinates: dict[str, np.ndarray],
     settings: Settings,
     file_name: str,
 ):
@@ -143,7 +145,7 @@ def _generate_data_file(
         settings (Settings): The settings for the simulation.
         file_name (str): The name of the file to save the simulated data.
     """
-    noise = False if settings.stdev_noise == 0 else True
+    noise = settings.stdev_noise != 0
     data = simulate(
         model,
         "dataset_1",
@@ -184,7 +186,7 @@ def generate_model_parameter_and_data_files(
     )
 
 
-def _sanitize_dict(d: Union[Dict[str, Any], Any]) -> Union[Dict[str, Any], Any]:
+def _sanitize_dict(d: dict[str, Any] | Any) -> dict[str, Any] | Any:
     """Recursively sanitize a dictionary by removing keys with values that are None, empty lists,
     or empty dictionaries.
 
