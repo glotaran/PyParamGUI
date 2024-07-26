@@ -228,9 +228,7 @@ def generate_model(*, generator_name: str, generator_arguments: GeneratorArgumen
             f"Unknown model generator '{generator_name}'. "
             f"Known generators are: {list(generators.keys())}"
         )
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     model = generators[generator_name](**generator_arguments)
     return Model.create_class_from_megacomplexes(
         [DecayParallelMegacomplex, DecaySequentialMegacomplex, SpectralMegacomplex]
@@ -269,8 +267,6 @@ def generate_model_yml(*, generator_name: str, generator_arguments: GeneratorArg
             f"Unknown model generator '{generator_name}'. "
             f"Known generators are: {list(generators.keys())}"
         )
-        raise ValueError(
-            msg
-        )
+        raise ValueError(msg)
     model = generators[generator_name](**generator_arguments)
     return cast(str, write_dict(model))
