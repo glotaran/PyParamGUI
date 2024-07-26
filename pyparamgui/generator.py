@@ -56,16 +56,19 @@ def _generate_decay_model(
         }
         model["shape"] = {
             f"shape_species_{i+1}": {
-                "type": "gaussian",
+                "type": "skewed-gaussian",
                 "amplitude": f"shapes.species_{i+1}.amplitude",
                 "location": f"shapes.species_{i+1}.location",
                 "width": f"shapes.species_{i+1}.width",
+                "skewness": f"shapes.species_{i+1}.skewness"
             }
             for i in range(nr_compartments)
         }
         model["dataset"]["dataset_1"]["global_megacomplex"] = [  # type:ignore[index]
             "megacomplex_spectral"
         ]
+        model["dataset"]["dataset_1"]["spectral_axis_inverted"] = True
+        model["dataset"]["dataset_1"]["spectral_axis_scale"] = 1E7
     if irf:
         model["dataset"]["dataset_1"]["irf"] = "gaussian_irf"  # type:ignore[index]
         model["irf"] = {
@@ -223,7 +226,6 @@ def generate_model(*, generator_name: str, generator_arguments: GeneratorArgumen
             f"Known generators are: {list(generators.keys())}"
         )
     model = generators[generator_name](**generator_arguments)
-    print(model)
     return Model.create_class_from_megacomplexes(
         [DecayParallelMegacomplex, DecaySequentialMegacomplex, SpectralMegacomplex]
     )(**model)

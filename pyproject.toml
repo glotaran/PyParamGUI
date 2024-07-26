@@ -15,7 +15,7 @@ keywords = [
 license = { file = "LICENSE" }
 
 authors = [
-  { name = "Anmol Bhatia", email = "a.bhatia2@student.vu.nl" },
+  { name = "Anmol Bhatia", email = "anmolbhatia05@gmail.com " },
 ]
 requires-python = ">=3.8"
 classifiers = [
@@ -35,6 +35,10 @@ dynamic = [
 ]
 
 dependencies = [
+  "pydantic==2.8.2",
+  "anywidget==0.9.13",
+  "pyglotaran==0.7.2",
+  "pyyaml==6.0.1",
 ]
 optional-dependencies.dev = [
   "pyparamgui[docs,test]",
