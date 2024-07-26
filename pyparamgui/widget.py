@@ -21,7 +21,8 @@ from pyparamgui.utils import generate_model_parameter_and_data_files
 class Widget(anywidget.AnyWidget):
     """A widget class for handling simulation parameters, coordinates and settings.
 
-    Attributes:
+    Attributes
+    ----------
         _esm (pathlib.Path): Path to the JavaScript file for the widget.
         _css (pathlib.Path): Path to the CSS file for the widget.
         decay_rates_input (traitlets.List): List of decay rates as floats.

@@ -1,5 +1,6 @@
 """This module has various utility functions related to generating files, sanitizing yaml files,
-etc."""
+etc.
+"""
 
 from __future__ import annotations
 
@@ -35,7 +36,8 @@ def _generate_model_file(
         nr_compartments (int): The number of compartments in the model.
         file_name (str): The name of the file to save the sanitized model.
 
-    Returns:
+    Returns
+    -------
         Model: The generated model.
     """
     generator_name = (
@@ -66,7 +68,8 @@ def _update_parameter_values(parameters: Parameters, simulation_config: Simulati
         parameters (Parameters): The parameters to be updated.
         simulation_config (SimulationConfig): The configuration containing the new values for the parameters.
 
-    Returns:
+    Returns
+    -------
         Parameters: The updated parameters.
     """
     for param in parameters.all():
@@ -110,7 +113,8 @@ def _generate_parameter_file(
         model (Model): The model for which parameters are to be generated.
         file_name (str): The name of the file to save the parameters.
 
-    Returns:
+    Returns
+    -------
         Parameters: The updated and validated parameters.
     """
     parameters = model.generate_parameters()
@@ -187,7 +191,8 @@ def _sanitize_dict(d: Union[Dict[str, Any], Any]) -> Union[Dict[str, Any], Any]:
     Args:
         d (Union[Dict[str, Any], Any]): The dictionary to sanitize or any other value.
 
-    Returns:
+    Returns
+    -------
         Union[Dict[str, Any], Any]: The sanitized dictionary or the original value if it is not a dictionary.
     """
     if not isinstance(d, dict):
@@ -203,7 +208,7 @@ def _sanitize_yaml_file(input_file: str, output_file: str) -> None:
         input_file (str): The path to the input YAML file.
         output_file (str): The path to the output sanitized YAML file.
     """
-    with open(input_file, "r") as f:
+    with open(input_file) as f:
         data = yaml.safe_load(f)
 
     sanitized_data = _sanitize_dict(data)
