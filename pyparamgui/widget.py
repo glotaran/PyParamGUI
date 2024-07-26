@@ -4,15 +4,22 @@ from __future__ import annotations
 
 import pathlib
 
-import traitlets
 import anywidget
+import traitlets
 
-from pyparamgui.schema import KineticParameters, SpectralParameters, TimeCoordinates, SpectralCoordinates, Settings, IRF, SimulationConfig, generate_simulation_coordinates
+from pyparamgui.schema import IRF
+from pyparamgui.schema import KineticParameters
+from pyparamgui.schema import Settings
+from pyparamgui.schema import SimulationConfig
+from pyparamgui.schema import SpectralCoordinates
+from pyparamgui.schema import SpectralParameters
+from pyparamgui.schema import TimeCoordinates
+from pyparamgui.schema import generate_simulation_coordinates
 from pyparamgui.utils import generate_model_parameter_and_data_files
 
+
 class Widget(anywidget.AnyWidget):
-    """
-    A widget class for handling simulation parameters, coordinates and settings.
+    """A widget class for handling simulation parameters, coordinates and settings.
 
     Attributes:
         _esm (pathlib.Path): Path to the JavaScript file for the widget.
@@ -38,6 +45,7 @@ class Widget(anywidget.AnyWidget):
         data_file_name_input (traitlets.Unicode): Name of the data file.
         simulate (traitlets.Unicode): Trigger for simulation.
     """
+
     _esm: pathlib.Path = pathlib.Path(__file__).parent / "static" / "form.js"
     _css: pathlib.Path = pathlib.Path(__file__).parent / "static" / "form.css"
     decay_rates_input: traitlets.List = traitlets.List(trait=traitlets.Float()).tag(sync=True)
@@ -61,61 +69,60 @@ class Widget(anywidget.AnyWidget):
     data_file_name_input: traitlets.Unicode = traitlets.Unicode("").tag(sync=True)
     simulate: traitlets.Unicode = traitlets.Unicode("").tag(sync=True)
 
+
 widget = Widget()
 
+
 def _simulate(change) -> None:
-    """
-    A Private callback function for simulating the data based on the parameters, coordinates, and other simulation settings.
-    
+    """A Private callback function for simulating the data based on the parameters, coordinates,
+    and other simulation settings.
+
     This function generates the model, parameter, and data files using the provided widget inputs.
 
     The 'change' parameter is not used within this function, but it is required to be present
-    because it represents the state change of the traitlets. This is a common pattern when
-    using traitlets to observe changes in widget state.
+    because it represents the state change of the traitlets. This is a common pattern when using
+    traitlets to observe changes in widget state.
     """
     simulation_config = SimulationConfig(
-        kinetic_parameters=KineticParameters(
-            decay_rates=widget.decay_rates_input
-        ),
+        kinetic_parameters=KineticParameters(decay_rates=widget.decay_rates_input),
         spectral_parameters=SpectralParameters(
             amplitude=widget.amplitude_input,
             location=widget.location_input,
             width=widget.width_input,
-            skewness=widget.skewness_input
+            skewness=widget.skewness_input,
         ),
         coordinates=generate_simulation_coordinates(
             TimeCoordinates(
                 timepoints_max=widget.timepoints_max_input,
-                timepoints_stepsize=widget.timepoints_stepsize_input
+                timepoints_stepsize=widget.timepoints_stepsize_input,
             ),
             SpectralCoordinates(
                 wavelength_min=widget.wavelength_min_input,
                 wavelength_max=widget.wavelength_max_input,
-                wavelength_stepsize=widget.wavelength_stepsize_input
-            )
+                wavelength_stepsize=widget.wavelength_stepsize_input,
+            ),
         ),
         settings=Settings(
             stdev_noise=widget.stdev_noise_input,
             seed=widget.seed_input,
             add_gaussian_irf=widget.add_gaussian_irf_input,
-            use_sequential_scheme=widget.use_sequential_scheme_input
+            use_sequential_scheme=widget.use_sequential_scheme_input,
         ),
-        irf=IRF(
-            center=widget.irf_location_input,
-            width=widget.irf_width_input
-        )
+        irf=IRF(center=widget.irf_location_input, width=widget.irf_width_input),
     )
     generate_model_parameter_and_data_files(
         simulation_config,
         model_file_name=widget.model_file_name_input,
         parameter_file_name=widget.parameter_file_name_input,
-        data_file_name=widget.data_file_name_input
+        data_file_name=widget.data_file_name_input,
     )
 
+
 def setup_widget_observer() -> None:
+    """Sets up the observer pattern on the 'simulate' traitlet to synchronize the frontend widget
+    with the backend simulation code.
+
+    This function ensures that any changes in the widget's state trigger the simulation process,
+    which generates the model, parameter, and data files.
     """
-    Sets up the observer pattern on the 'simulate' traitlet to synchronize the frontend widget
-    with the backend simulation code. This function ensures that any changes in the widget's state
-    trigger the simulation process, which generates the model, parameter, and data files.
-    """
-    widget.observe(handler=_simulate, names=['simulate'])
+    widget.observe(handler=_simulate, names=["simulate"])

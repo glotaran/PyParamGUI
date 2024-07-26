@@ -4,3 +4,4 @@
 pydantic==2.8.2
 anywidget==0.9.13
 pyglotaran==0.7.2
+pyyaml==6.0.1

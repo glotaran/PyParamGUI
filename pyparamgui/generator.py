@@ -1,4 +1,4 @@
-"""The glotaran generator module."""     
+"""The glotaran generator module."""
 
 from __future__ import annotations
 
@@ -60,7 +60,7 @@ def _generate_decay_model(
                 "amplitude": f"shapes.species_{i+1}.amplitude",
                 "location": f"shapes.species_{i+1}.location",
                 "width": f"shapes.species_{i+1}.width",
-                "skewness": f"shapes.species_{i+1}.skewness"
+                "skewness": f"shapes.species_{i+1}.skewness",
             }
             for i in range(nr_compartments)
         }
@@ -68,7 +68,7 @@ def _generate_decay_model(
             "megacomplex_spectral"
         ]
         model["dataset"]["dataset_1"]["spectral_axis_inverted"] = True
-        model["dataset"]["dataset_1"]["spectral_axis_scale"] = 1E7
+        model["dataset"]["dataset_1"]["spectral_axis_scale"] = 1e7
     if irf:
         model["dataset"]["dataset_1"]["irf"] = "gaussian_irf"  # type:ignore[index]
         model["irf"] = {
@@ -193,7 +193,7 @@ class GeneratorArguments(TypedDict, total=False):
     irf: bool
 
 
-def generate_model(*, generator_name: str, generator_arguments: GeneratorArguments) -> Model:  
+def generate_model(*, generator_name: str, generator_arguments: GeneratorArguments) -> Model:
     """Generate a model.
 
     Parameters
