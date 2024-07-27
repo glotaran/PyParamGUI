@@ -75,6 +75,16 @@ class Widget(anywidget.AnyWidget):
     visualize_data: traitlets.Bool = traitlets.Bool(default_value=True).tag(sync=True)
 
     def __init__(self):
+        """Initialize the Widget instance and set up traitlet observers.
+
+        This constructor initializes the Widget instance by calling the parent
+        class's initializer and sets up an observer for the 'simulate' traitlet.
+        The observer triggers the `_simulate` function whenever the 'simulate'
+        traitlet changes.
+
+        Observers:
+            - simulate: Calls the `_simulate` function when the 'simulate' traitlet changes.
+        """
         super().__init__()
         self.observe(handler=_simulate, names=["simulate"])
 
