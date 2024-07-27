@@ -31,16 +31,17 @@ def _generate_decay_model(
     spectral : bool
         Whether to add a spectral model.
     decay_type : str
-        The dype of the decay
+        The type of the decay
 
     Returns
     -------
-    dict[str, Any] :
+    dict[str, Any]
         The generated model dictionary.
     """
     compartments = [f"species_{i+1}" for i in range(nr_compartments)]
     rates = [f"rates.species_{i+1}" for i in range(nr_compartments)]
-    model = {
+
+    model: dict[str, Any] = {
         "megacomplex": {
             f"megacomplex_{decay_type}_decay": {
                 "type": f"decay-{decay_type}",
@@ -51,11 +52,14 @@ def _generate_decay_model(
         "dataset": {"dataset_1": {"megacomplex": [f"megacomplex_{decay_type}_decay"]}},
     }
     if spectral:
-        model["megacomplex"]["megacomplex_spectral"] = {  # type:ignore[index]
-            "type": "spectral",
-            "shape": {
-                compartment: f"shape_species_{i+1}" for i, compartment in enumerate(compartments)
-            },
+        model["megacomplex"] |= {
+            "megacomplex_spectral": {
+                "type": "spectral",
+                "shape": {
+                    compartment: f"shape_species_{i+1}"
+                    for i, compartment in enumerate(compartments)
+                },
+            }
         }
         model["shape"] = {
             f"shape_species_{i+1}": {
@@ -67,13 +71,13 @@ def _generate_decay_model(
             }
             for i in range(nr_compartments)
         }
-        model["dataset"]["dataset_1"]["global_megacomplex"] = [  # type:ignore[index]
-            "megacomplex_spectral"
-        ]
-        model["dataset"]["dataset_1"]["spectral_axis_inverted"] = True
-        model["dataset"]["dataset_1"]["spectral_axis_scale"] = 1e7
+        model["dataset"]["dataset_1"] |= {
+            "global_megacomplex": ["megacomplex_spectral"],
+            "spectral_axis_inverted": True,
+            "spectral_axis_scale": 1e7,
+        }
     if irf:
-        model["dataset"]["dataset_1"]["irf"] = "gaussian_irf"  # type:ignore[index]
+        model["dataset"]["dataset_1"] |= {"irf": "gaussian_irf"}
         model["irf"] = {
             "gaussian_irf": {"type": "gaussian", "center": "irf.center", "width": "irf.width"},
         }
@@ -94,7 +98,7 @@ def generate_parallel_decay_model(
 
     Returns
     -------
-    dict[str, Any] :
+    dict[str, Any]
         The generated model dictionary.
     """
     return _generate_decay_model(
@@ -116,7 +120,7 @@ def generate_parallel_spectral_decay_model(
 
     Returns
     -------
-    dict[str, Any] :
+    dict[str, Any]
         The generated model dictionary.
     """
     return _generate_decay_model(
@@ -124,7 +128,9 @@ def generate_parallel_spectral_decay_model(
     )
 
 
-def generate_sequential_decay_model(nr_compartments: int = 1, irf: bool = False) -> dict[str, Any]:
+def generate_sequential_decay_model(
+    *, nr_compartments: int = 1, irf: bool = False
+) -> dict[str, Any]:
     """Generate a sequential decay model dictionary.
 
     Parameters
@@ -136,7 +142,7 @@ def generate_sequential_decay_model(nr_compartments: int = 1, irf: bool = False)
 
     Returns
     -------
-    dict[str, Any] :
+    dict[str, Any]
         The generated model dictionary.
     """
     return _generate_decay_model(
@@ -158,7 +164,7 @@ def generate_sequential_spectral_decay_model(
 
     Returns
     -------
-    dict[str, Any] :
+    dict[str, Any]
         The generated model dictionary.
     """
     return _generate_decay_model(

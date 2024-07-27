@@ -1,4 +1,4 @@
-"""This module contains the simulation widget."""
+"""Simulation widget module."""
 
 from __future__ import annotations
 
@@ -71,59 +71,55 @@ class Widget(anywidget.AnyWidget):
     simulate: traitlets.Unicode = traitlets.Unicode("").tag(sync=True)
 
 
-widget = Widget()
+_widget = Widget()
 
 
-def _simulate(change) -> None:
-    """A Private callback function for simulating the data based on the parameters, coordinates,
-    and other simulation settings.
+def _simulate(_) -> None:
+    """Generate simulation files based on (global) widget (`_widget`) inputs.
 
-    This function generates the model, parameter, and data files using the provided widget inputs.
-
-    The 'change' parameter is not used within this function, but it is required to be present
-    because it represents the state change of the traitlets. This is a common pattern when using
-    traitlets to observe changes in widget state.
+    This private callback function creates model, parameter, and data files
+    using the current widget (`_widget`) state. The 'change' parameter is unused but
+    required for traitlet observation.
     """
     simulation_config = SimulationConfig(
-        kinetic_parameters=KineticParameters(decay_rates=widget.decay_rates_input),
+        kinetic_parameters=KineticParameters(decay_rates=_widget.decay_rates_input),
         spectral_parameters=SpectralParameters(
-            amplitude=widget.amplitude_input,
-            location=widget.location_input,
-            width=widget.width_input,
-            skewness=widget.skewness_input,
+            amplitude=_widget.amplitude_input,
+            location=_widget.location_input,
+            width=_widget.width_input,
+            skewness=_widget.skewness_input,
         ),
         coordinates=generate_simulation_coordinates(
             TimeCoordinates(
-                timepoints_max=widget.timepoints_max_input,
-                timepoints_stepsize=widget.timepoints_stepsize_input,
+                timepoints_max=_widget.timepoints_max_input,
+                timepoints_stepsize=_widget.timepoints_stepsize_input,
             ),
             SpectralCoordinates(
-                wavelength_min=widget.wavelength_min_input,
-                wavelength_max=widget.wavelength_max_input,
-                wavelength_stepsize=widget.wavelength_stepsize_input,
+                wavelength_min=_widget.wavelength_min_input,
+                wavelength_max=_widget.wavelength_max_input,
+                wavelength_stepsize=_widget.wavelength_stepsize_input,
             ),
         ),
         settings=Settings(
-            stdev_noise=widget.stdev_noise_input,
-            seed=widget.seed_input,
-            add_gaussian_irf=widget.add_gaussian_irf_input,
-            use_sequential_scheme=widget.use_sequential_scheme_input,
+            stdev_noise=_widget.stdev_noise_input,
+            seed=_widget.seed_input,
+            add_gaussian_irf=_widget.add_gaussian_irf_input,
+            use_sequential_scheme=_widget.use_sequential_scheme_input,
         ),
-        irf=IRF(center=widget.irf_location_input, width=widget.irf_width_input),
+        irf=IRF(center=_widget.irf_location_input, width=_widget.irf_width_input),
     )
     generate_model_parameter_and_data_files(
         simulation_config,
-        model_file_name=widget.model_file_name_input,
-        parameter_file_name=widget.parameter_file_name_input,
-        data_file_name=widget.data_file_name_input,
+        model_file_name=_widget.model_file_name_input,
+        parameter_file_name=_widget.parameter_file_name_input,
+        data_file_name=_widget.data_file_name_input,
     )
 
 
 def setup_widget_observer() -> None:
-    """Sets up the observer pattern on the 'simulate' traitlet to synchronize the frontend widget
-    with the backend simulation code.
+    """Set up an observer to trigger simulation when the widget state changes.
 
-    This function ensures that any changes in the widget's state trigger the simulation process,
-    which generates the model, parameter, and data files.
+    This function sets up an observer on the 'simulate' traitlet. When triggered, it runs the
+    simulation process, generating the necessary model, parameter, and data files.
     """
-    widget.observe(handler=_simulate, names=["simulate"])
+    _widget.observe(handler=_simulate, names=["simulate"])

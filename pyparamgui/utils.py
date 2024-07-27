@@ -1,10 +1,8 @@
-"""This module has various utility functions related to generating files, sanitizing yaml files,
-etc.
-"""
+"""Utility module for generating files, sanitizing yaml files, etc."""
 
 from __future__ import annotations
 
-import os
+from pathlib import Path
 from typing import TYPE_CHECKING
 from typing import Any
 
@@ -19,6 +17,7 @@ from pyparamgui.generator import generate_model
 if TYPE_CHECKING:
     import numpy as np
     from glotaran.model.model import Model
+    from glotaran.parameter.parameter import Parameter
     from glotaran.parameter.parameters import Parameters
 
     from pyparamgui.schema import Settings
@@ -30,8 +29,10 @@ def _generate_model_file(
 ) -> Model:
     """Generate and save a model file for the simulation.
 
-    This function generates a model based on the provided simulation configuration and number of compartments.
-    It saves the generated model to a temporary YAML file, sanitizes the file, and then saves it to the specified file name.
+    This function generates a model based on the provided simulation configuration
+    and number of compartments.
+    It saves the generated model to a temporary YAML file, sanitizes the file,
+    and then saves it to the specified file name.
 
     Args:
         simulation_config (SimulationConfig): The configuration for the simulation.
@@ -40,7 +41,8 @@ def _generate_model_file(
 
     Returns
     -------
-        Model: The generated model.
+    Model
+        The generated model object, which can be used for further processing or simulation.
     """
     generator_name = (
         "spectral_decay_sequential"
@@ -59,47 +61,68 @@ def _generate_model_file(
     return model
 
 
-def _update_parameter_values(parameters: Parameters, simulation_config: SimulationConfig):
+def _update_parameter_values(
+    parameters: Parameters, simulation_config: SimulationConfig
+) -> Parameters:
     """Update parameter values based on the simulation configuration.
 
-    This function iterates through all parameters and updates their values according to the
-    provided simulation configuration. It handles parameters related to spectral shapes,
-    kinetic rates, and IRF (Instrument Response Function).
+    This function iterates through all parameters and updates their values
+    based on the provided simulation configuration. It handles shape parameters,
+    rate parameters, and IRF (Instrument Response Function) parameters.
 
-    Args:
-        parameters (Parameters): The parameters to be updated.
-        simulation_config (SimulationConfig): The configuration containing the new values for the parameters.
+    Parameters
+    ----------
+    parameters : Parameters
+        The set of parameters to be updated.
+    simulation_config : SimulationConfig
+        The configuration object containing the simulation settings and parameter values.
 
     Returns
     -------
-        Parameters: The updated parameters.
+    `Parameters`
+        The updated set of parameters with new values based on the
+        simulation configuration.
     """
     for param in parameters.all():
         label = param.label
         if label.startswith("shapes.species_"):
-            parts = label.split(".")
-            species_index = int(parts[1].split("_")[1]) - 1
-            attribute = parts[2]
-
-            if attribute == "amplitude":
-                param.value = simulation_config.spectral_parameters.amplitude[species_index]
-            elif attribute == "location":
-                param.value = simulation_config.spectral_parameters.location[species_index]
-            elif attribute == "width":
-                param.value = simulation_config.spectral_parameters.width[species_index]
-            elif attribute == "skewness":
-                param.value = simulation_config.spectral_parameters.skewness[species_index]
-
+            _update_shape_parameter(param, label, simulation_config)
         elif label.startswith("rates.species_"):
-            species_index = int(label.split("_")[1]) - 1
-            param.value = simulation_config.kinetic_parameters.decay_rates[species_index]
-
+            _update_rate_parameter(param, label, simulation_config)
         elif label.startswith("irf") and simulation_config.settings.add_gaussian_irf:
-            if "width" in label:
-                param.value = simulation_config.irf.width
-            if "center" in label:
-                param.value = simulation_config.irf.center
+            _update_irf_parameter(param, label, simulation_config)
     return parameters
+
+
+def _update_shape_parameter(param: Parameter, label: str, simulation_config: SimulationConfig):
+    """Update shape parameters."""
+    parts = label.split(".")
+    species_index = int(parts[1].split("_")[1]) - 1
+    attribute = parts[2]
+    spectral_params = simulation_config.spectral_parameters
+
+    if attribute == "amplitude":
+        param.value = spectral_params.amplitude[species_index]
+    elif attribute == "location":
+        param.value = spectral_params.location[species_index]
+    elif attribute == "width":
+        param.value = spectral_params.width[species_index]
+    elif attribute == "skewness":
+        param.value = spectral_params.skewness[species_index]
+
+
+def _update_rate_parameter(param: Parameter, label: str, simulation_config: SimulationConfig):
+    """Update rate parameters."""
+    species_index = int(label.split("_")[1]) - 1
+    param.value = simulation_config.kinetic_parameters.decay_rates[species_index]
+
+
+def _update_irf_parameter(param: Parameter, label: str, simulation_config: SimulationConfig):
+    """Update IRF parameters."""
+    if "width" in label:
+        param.value = simulation_config.irf.width
+    elif "center" in label:
+        param.value = simulation_config.irf.center
 
 
 def _generate_parameter_file(
@@ -107,7 +130,8 @@ def _generate_parameter_file(
 ) -> Parameters:
     """Generate and save the parameter file for the simulation.
 
-    This function generates the parameters for the given model, updates them based on the simulation configuration,
+    This function generates the parameters for the given model,
+    updates them based on the simulation configuration,
     validates the updated parameters, and saves them to a file.
 
     Args:
@@ -117,7 +141,8 @@ def _generate_parameter_file(
 
     Returns
     -------
-        Parameters: The updated and validated parameters.
+    `Parameters`
+        The updated and validated parameters.
     """
     parameters = model.generate_parameters()
     updated_parameters = _update_parameter_values(parameters, simulation_config)
@@ -135,8 +160,8 @@ def _generate_data_file(
 ):
     """Generate and save the data file for the simulation.
 
-    This function simulates the data based on the given model, parameters, coordinates, and settings,
-    and saves the simulated data to a file.
+    This function simulates the data based on the given model, parameters, coordinates,
+    and settings, and saves the simulated data to a file.
 
     Args:
         model (Model): The model used for simulation.
@@ -166,13 +191,17 @@ def generate_model_parameter_and_data_files(
 ):
     """Generate and save the model, parameter, and data files for the simulation.
 
-    This function generates the model file, parameter file, and data file based on the given simulation configuration.
+    This function generates the model file, parameter file, and data file based on the given
+    simulation configuration.
 
     Args:
         simulation_config (SimulationConfig): The configuration for the simulation.
-        model_file_name (str, optional): The name of the file to save the model. Defaults to "model.yml".
-        parameter_file_name (str, optional): The name of the file to save the parameters. Defaults to "parameters.csv".
-        data_file_name (str, optional): The name of the file to save the data. Defaults to "dataset.nc".
+        model_file_name (str, optional): The name of the file to save the model.
+            Defaults to "model.yml".
+        parameter_file_name (str, optional): The name of the file to save the parameters.
+            Defaults to "parameters.csv".
+        data_file_name (str, optional): The name of the file to save the data.
+            Defaults to "dataset.nc".
     """
     nr_compartments = len(simulation_config.kinetic_parameters.decay_rates)
     model = _generate_model_file(simulation_config, nr_compartments, model_file_name)
@@ -187,15 +216,20 @@ def generate_model_parameter_and_data_files(
 
 
 def _sanitize_dict(d: dict[str, Any] | Any) -> dict[str, Any] | Any:
-    """Recursively sanitize a dictionary by removing keys with values that are None, empty lists,
+    """Sanitize an input dictionary and produce a new sanitized dictionary.
+
+    Recursively sanitize a dictionary by removing keys with values that are None, empty lists,
     or empty dictionaries.
 
-    Args:
-        d (Union[Dict[str, Any], Any]): The dictionary to sanitize or any other value.
+    Parameters
+    ----------
+    d : dict[str, Any] | Any
+        The dictionary to sanitize or any other value.
 
     Returns
     -------
-        Union[Dict[str, Any], Any]: The sanitized dictionary or the original value if it is not a dictionary.
+    dict[str, Any] | Any
+        The sanitized dict or the original value if input is not a dict.
     """
     if not isinstance(d, dict):
         return d
@@ -203,18 +237,20 @@ def _sanitize_dict(d: dict[str, Any] | Any) -> dict[str, Any] | Any:
 
 
 def _sanitize_yaml_file(input_file: str, output_file: str) -> None:
-    """Sanitize a YAML file by removing keys with values that are None, empty lists, or empty
+    """Sanitize an input YAML file and produce a new sanitized YAML file.
+
+    Sanitize by removing keys with values that are None, empty lists, or empty
     dictionaries, and save the sanitized content to a new file.
 
     Args:
         input_file (str): The path to the input YAML file.
         output_file (str): The path to the output sanitized YAML file.
     """
-    with open(input_file) as f:
+    with Path(input_file).open() as f:
         data = yaml.safe_load(f)
 
     sanitized_data = _sanitize_dict(data)
 
-    with open(output_file, "w") as f:
+    with Path(output_file).open("w") as f:
         yaml.safe_dump(sanitized_data, f)
-    os.remove(input_file)
+    Path(input_file).unlink()

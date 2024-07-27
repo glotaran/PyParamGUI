@@ -1,5 +1,6 @@
-"""This module has the different model classes representing different parameters, coordinates, and
-settings for simulation.
+"""Schema module representing attributes used for simulation.
+
+e.g. parameters, coordinates, and settings used in simulation.
 """
 
 from __future__ import annotations
@@ -76,7 +77,10 @@ def generate_simulation_coordinates(
 
     Returns
     -------
-        Dict[str, np.ndarray]: A dictionary containing the time and spectral axes as numpy arrays.
+    dict[str, np.ndarray]
+        A dictionary containing two keys:
+        - 'time': A numpy array representing the time axis.
+        - 'spectral': A numpy array representing the spectral axis.
     """
     time_axis = np.arange(
         0,
@@ -98,8 +102,10 @@ class Settings(BaseModel):
     ----------
         stdev_noise (float): Standard deviation of the noise to be added to the simulation data.
         seed (int): Seed for the random number generator to ensure reproducibility.
-        add_gaussian_irf (bool): Flag to indicate whether to add a Gaussian Instrument Response Function (IRF) to the simulation. Default is False.
-        use_sequential_scheme (bool): Flag to indicate whether to use a sequential scheme in the simulation. Default is False.
+        add_gaussian_irf (bool): Whether to add a Gaussian IRF to the simulation.
+            Default is False.
+        use_sequential_scheme (bool): Whether to use a sequential scheme in the simulation.
+            Default is False.
     """
 
     stdev_noise: float
@@ -128,9 +134,11 @@ class SimulationConfig(BaseModel):
     ----------
         kinetic_parameters (KineticParameters): Kinetic parameters for the simulation.
         spectral_parameters (SpectralParameters): Spectral parameters for the simulation.
-        coordinates (Dict[str, np.ndarray]): Dictionary containing the time and spectral axes as numpy arrays.
-        settings (Settings): Other settings for the simulation, including noise standard deviation, random seed, and flags for adding Gaussian IRF and using a sequential scheme.
-        irf (IRF): Instrument Response Function (IRF) settings, including center position and width.
+        coordinates (Dict[str, np.ndarray]): Dictionary containing the time and spectral axes as
+            numpy arrays.
+        settings (Settings): Other settings for the simulation, including noise standard deviation,
+            random seed, and flags for adding Gaussian IRF and using a sequential scheme.
+        irf (IRF): Instrument Response Function (IRF) settings, e.g. center position and width.
     """
 
     kinetic_parameters: KineticParameters
