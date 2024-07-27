@@ -24,3 +24,8 @@ hr {
 button {
   margin-top: 10px;
 }
+message {
+  transition: opacity 0.5s ease;
+  opacity: 0;
+  color: black;
+}

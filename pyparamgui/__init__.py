@@ -6,19 +6,14 @@ __author__ = """Anmol Bhatia"""
 __email__ = "anmolbhatia05@gmail.com"
 __version__ = "0.0.1"
 
-from pyparamgui.widget import _widget
-from pyparamgui.widget import setup_widget_observer
+from pyparamgui.widget import Widget
 
-__all__ = ["_widget", "setup_widget_observer"]
+__all__ = ["Widget"]
 """
 Package Usage:
-    # considering that each command is run in a separate jupyter notebook cell
-
     %env ANYWIDGET_HMR=1
+    from pyparamgui import Widget
 
-    from pyparamgui import widget, setup_widget_observer
-
+    widget = Widget()
     widget
-
-    setup_widget_observer()
 """

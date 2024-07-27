@@ -6,6 +6,8 @@ import pathlib
 
 import anywidget
 import traitlets
+from glotaran.io import load_dataset
+from pyglotaran_extras import plot_data_overview
 
 from pyparamgui.schema import IRF
 from pyparamgui.schema import KineticParameters
@@ -45,6 +47,7 @@ class Widget(anywidget.AnyWidget):
         parameter_file_name_input (traitlets.Unicode): Name of the parameter file.
         data_file_name_input (traitlets.Unicode): Name of the data file.
         simulate (traitlets.Unicode): Trigger for simulation.
+        visualize_data (traitlets.Bool): Flag to visualize data.
     """
 
     _esm: pathlib.Path = pathlib.Path(__file__).parent / "static" / "form.js"
@@ -69,57 +72,60 @@ class Widget(anywidget.AnyWidget):
     parameter_file_name_input: traitlets.Unicode = traitlets.Unicode("").tag(sync=True)
     data_file_name_input: traitlets.Unicode = traitlets.Unicode("").tag(sync=True)
     simulate: traitlets.Unicode = traitlets.Unicode("").tag(sync=True)
+    visualize_data: traitlets.Bool = traitlets.Bool(default_value=True).tag(sync=True)
+
+    def __init__(self):
+        super().__init__()
+        self.observe(handler=_simulate, names=["simulate"])
 
 
-_widget = Widget()
-
-
-def _simulate(_) -> None:
+def _simulate(change) -> None:
     """Generate simulation files based on (global) widget (`_widget`) inputs.
 
     This private callback function creates model, parameter, and data files
     using the current widget (`_widget`) state. The 'change' parameter is unused but
     required for traitlet observation.
     """
+    widget_instance = change["owner"]
     simulation_config = SimulationConfig(
-        kinetic_parameters=KineticParameters(decay_rates=_widget.decay_rates_input),
+        kinetic_parameters=KineticParameters(decay_rates=widget_instance.decay_rates_input),
         spectral_parameters=SpectralParameters(
-            amplitude=_widget.amplitude_input,
-            location=_widget.location_input,
-            width=_widget.width_input,
-            skewness=_widget.skewness_input,
+            amplitude=widget_instance.amplitude_input,
+            location=widget_instance.location_input,
+            width=widget_instance.width_input,
+            skewness=widget_instance.skewness_input,
         ),
         coordinates=generate_simulation_coordinates(
             TimeCoordinates(
-                timepoints_max=_widget.timepoints_max_input,
-                timepoints_stepsize=_widget.timepoints_stepsize_input,
+                timepoints_max=widget_instance.timepoints_max_input,
+                timepoints_stepsize=widget_instance.timepoints_stepsize_input,
             ),
             SpectralCoordinates(
-                wavelength_min=_widget.wavelength_min_input,
-                wavelength_max=_widget.wavelength_max_input,
-                wavelength_stepsize=_widget.wavelength_stepsize_input,
+                wavelength_min=widget_instance.wavelength_min_input,
+                wavelength_max=widget_instance.wavelength_max_input,
+                wavelength_stepsize=widget_instance.wavelength_stepsize_input,
             ),
         ),
         settings=Settings(
-            stdev_noise=_widget.stdev_noise_input,
-            seed=_widget.seed_input,
-            add_gaussian_irf=_widget.add_gaussian_irf_input,
-            use_sequential_scheme=_widget.use_sequential_scheme_input,
+            stdev_noise=widget_instance.stdev_noise_input,
+            seed=widget_instance.seed_input,
+            add_gaussian_irf=widget_instance.add_gaussian_irf_input,
+            use_sequential_scheme=widget_instance.use_sequential_scheme_input,
         ),
-        irf=IRF(center=_widget.irf_location_input, width=_widget.irf_width_input),
+        irf=IRF(center=widget_instance.irf_location_input, width=widget_instance.irf_width_input),
     )
     generate_model_parameter_and_data_files(
         simulation_config,
-        model_file_name=_widget.model_file_name_input,
-        parameter_file_name=_widget.parameter_file_name_input,
-        data_file_name=_widget.data_file_name_input,
+        model_file_name=widget_instance.model_file_name_input,
+        parameter_file_name=widget_instance.parameter_file_name_input,
+        data_file_name=widget_instance.data_file_name_input,
     )
-
-
-def setup_widget_observer() -> None:
-    """Set up an observer to trigger simulation when the widget state changes.
-
-    This function sets up an observer on the 'simulate' traitlet. When triggered, it runs the
-    simulation process, generating the necessary model, parameter, and data files.
-    """
-    _widget.observe(handler=_simulate, names=["simulate"])
+    if widget_instance.visualize_data:
+        irf_location = (
+            None if not simulation_config.settings.add_gaussian_irf
+            else simulation_config.irf.center
+        )
+        plot_data_overview(
+            dataset=load_dataset(widget_instance.data_file_name_input),
+            irf_location=irf_location
+        )
