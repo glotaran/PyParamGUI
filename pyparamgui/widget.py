@@ -79,7 +79,7 @@ class Widget(anywidget.AnyWidget):
         self.observe(handler=_simulate, names=["simulate"])
 
 
-def _simulate(change) -> None:
+def _simulate(change: dict) -> None:
     """Generate simulation files based on (global) widget (`_widget`) inputs.
 
     This private callback function creates model, parameter, and data files
@@ -122,10 +122,10 @@ def _simulate(change) -> None:
     )
     if widget_instance.visualize_data:
         irf_location = (
-            None if not simulation_config.settings.add_gaussian_irf
+            None
+            if not simulation_config.settings.add_gaussian_irf
             else simulation_config.irf.center
         )
         plot_data_overview(
-            dataset=load_dataset(widget_instance.data_file_name_input),
-            irf_location=irf_location
+            dataset=load_dataset(widget_instance.data_file_name_input), irf_location=irf_location
         )

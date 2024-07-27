@@ -38,7 +38,12 @@ function createTextFormGroup(labelText, inputId, inputName, inputValue) {
  *
  * @returns {HTMLDivElement} The form group element containing the label and checkbox input.
  */
-function createCheckboxFormGroup(labelText, inputId, inputName, inputChecked = false) {
+function createCheckboxFormGroup(
+  labelText,
+  inputId,
+  inputName,
+  inputChecked = false,
+) {
   const formGroup = document.createElement("div");
   formGroup.className = "form-group";
 
@@ -201,7 +206,7 @@ function displaySimulationMessage(parentElement) {
       parentElement.removeChild(message);
     }, 500);
   }, 2000);
-};
+}
 
 /**
  * Entrypoint for frontend rendering called by Python backend based on anywidget.
