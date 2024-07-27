@@ -14,11 +14,7 @@
 
 [![Ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
-pyglotaran notebook widgets for teaching parameter estimation examples
-
-## Features
-
-- TODO
+A pyglotaran based jupyter notebook widget for teaching parameter estimation examples. It can simulate data, visualize it and create related model.yml, parameters.csv and dataset.nc files. It is supposed to help students learn about the basics of the pyglotaran ecosystem.
 
 ## Contributors ✨
 
