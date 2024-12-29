@@ -36,13 +36,13 @@ def _create_mock_widget():
     return widget
 
 
-@pytest.fixture()
+@pytest.fixture
 def mock_widget():
     """Return a mock Widget for testing."""
     return _create_mock_widget()
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_dir():
     """Create a temporary directory for testing."""
     with tempfile.TemporaryDirectory() as tmpdirname:
