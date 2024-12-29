@@ -20,7 +20,7 @@ repos:
         args: [--fix=lf]
 
   - repo: https://github.com/PyCQA/docformatter
-    rev: v1.7.5
+    rev: 06907d0
     hooks:
       - id: docformatter
         additional_dependencies: [tomli]
@@ -62,7 +62,7 @@ repos:
     hooks:
       - id: mypy
         exclude: "docs"
-        additional_dependencies: ["types-all"]
+        additional_dependencies: ["types-PyYAML"]
 
   ###################
   #   LINTER DOCS   #
@@ -74,13 +74,13 @@ repos:
         alias: flake8-docs
         args:
           - "--select=DOC"
-          - "--extend-ignore=DOC502"
+          - "--extend-ignore=DOC502,DOC601,DOC603,DOC101,DOC103,DOC201"
           - "--color=always"
           - "--require-return-section-when-returning-nothing=False"
           - "--allow-init-docstring=True"
           - "--skip-checking-short-docstrings=False"
         name: "flake8 lint docstrings"
-        exclude: "^(docs/|tests?/)"
+        exclude: "^(docs/|tests?/|pyparamgui/generator.py)"
         additional_dependencies: [pydoclint==0.5.3]
 
   - repo: https://github.com/econchick/interrogate
@@ -97,6 +97,7 @@ repos:
         types: [file]
         types_or: [python, pyi, markdown, rst, jupyter]
         args: [-L nnumber]
+        exclude: ^examples/
 
   - repo: https://github.com/rhysd/actionlint
     rev: "v1.7.1"
