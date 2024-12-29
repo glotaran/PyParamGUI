@@ -107,3 +107,6 @@ ENV/
 
 examples/
 !examples/*.ipynb
+
+# MacOs OS files
+.DS_store
